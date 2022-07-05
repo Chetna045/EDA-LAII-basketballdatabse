@@ -1,0 +1,332 @@
+---
+title: "la2"
+output:
+  word_document: default
+  pdf_document: default
+date: '2022-07-03'
+---
+---
+date: '2022-06-23'
+output: pdf_document
+---
+
+# **EDA LAII**
+# _____________________________
+## By                          
+## Chetna Pathak(1NT19IS045)   
+## Abhiruchi Verma(1NT19IS002) 
+# _____________________________
+\vspace{12pt}
+
+### Basketball Database
+### https://www.kaggle.com/wyattowalsh/basketball
+
+### github link
+### https://github.com/Chetna045/EDA-LAII-basketballdatabse
+
+\vspace{12pt}
+
+## checking for installed packages
+```{r}
+installed.packages("dplyr")
+```
+## installing necessary packages
+
+```{r}
+#install.packages("DBI")
+#install.packages("dplyr")
+```
+## loading packages
+
+```{r}
+library(DBI)
+library(dplyr)
+```
+## Making connection with sqlite database
+
+```{r}
+setwd("C:/Users/Hp/Downloads/archive")
+con <- dbConnect(RSQLite::SQLite(), "basketball.sqlite")
+```
+## making reference to tables in database
+
+```{r}
+game<-tbl(con,"Game")
+draft<-tbl(con,"Draft")
+draft_combine<-tbl(con,"Draft_Combine")
+game_inactive_players<-tbl(con,"Game_Inactive_Players")
+game_officials<-tbl(con,"Game_Officials")
+news<-tbl(con,"News")
+news_missing<-tbl(con,"News_Missing")
+player<-tbl(con,"Player")
+player_attributes<-tbl(con,"Player_Attributes")
+player_bios<-tbl(con,"Player_Bios")
+player_photos<-tbl(con,"Player_Photos")
+player_salary<-tbl(con,"Player_Salary")
+team<-tbl(con,"Team")
+team_attributes<-tbl(con,"Team_Attributes")
+team_history<-tbl(con,"Team_History")
+team_salary<-tbl(con,"Team_Salary")
+```
+## converting team table into a dataframe
+```{r}
+team.data.frame<-dbGetQuery(con,"SELECT * From Team")
+team.data.frame
+team.data.frame[1][0]
+str(team.data.frame)
+```
+## converting draft table into a dataframe
+```{r}
+draft.df<-dbGetQuery(con,"SELECT * From draft")
+draft.df[1:20,]
+draft.df[1][0]
+str(draft.df)
+```
+```{r}
+
+plot(draft.df[1:80,4],draft.df[1:80,2])
+```
+```{r}
+library(ggplot2)
+```
+
+
+## barplot 
+```{r}
+draft.mat=as.matrix(draft.df)
+barplot(draft.mat[,1:4])
+
+```
+
+
+
+
+
+
+
+## plots
+```{r}
+plot(draft.df[1:80,4],type = "l")
+plot(draft.df[1:80,2],type = "l")
+plot(draft.df[1:80,3],type = "l")
+plot(draft.df[1:80,1],type = "l")
+plot(draft.df[1:80,4],type = "l")
+lines(draft.df[1:80,3],col="red",type = "l")
+lines(draft.df[1:80,2],col="blue",type = "l")
+```
+
+
+
+
+
+
+## plotting a bargraph using ggplot
+```{r}
+library(ggplot2)
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick))+geom_col()
+ggplot(draft.df, aes(x =numberRound , y = numberRoundPick, fill =numberPickOverall )) +
+ geom_col(position = "identity")
+
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick,fill="red"))+geom_col(position="dodge")
+ggplot(draft,aes(x=numberRound,y=numberRoundPick))+geom_col(fill="red",colour="black")
+```
+
+
+
+
+## using ggplot plotting a bar graph with fill 
+```{r}
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick,fill=numberPickOverall))+geom_col()
+```
+
+
+
+
+
+## using ggplot plotting a line graph
+```{r}
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick))+geom_line()
+ ggplot(draft.df, aes(x = numberRound )) +
+ geom_line(stat = "density") +
+ geom_line(stat = "density", adjust = .25, colour = "red") +
+ geom_line(stat = "density", adjust = 2, colour = "blue")
+```
+
+
+
+
+
+
+## using ggplot plotting a point graph
+```{r}
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick))+geom_point()
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick))+geom_point(aes(colour=numberPickOverall))
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick))+geom_point(shape=21)
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick))+geom_point(size=1.5)
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick))+geom_point(position="jitter")
+```
+
+## using ggplot  plotting line and point in same graph
+```{r}
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick))+geom_line()+geom_point()
+```
+
+
+
+
+
+## using ggplot plotting a boxplot
+```{r}
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick))+geom_boxplot()
+ggplot(draft.df,aes(x=interaction(numberRound,numberRoundPick),y=numberPickOverall))+geom_boxplot()
+ggplot(draft.df, aes(x = factor(yearDraft), y =numberRound )) +
+ geom_boxplot(notch = TRUE)
+ggplot(draft.df, aes(x = factor(yearDraft), y = numberRound)) +
+ geom_boxplot() +
+ stat_summary(fun.y = "mean", geom = "point", shape = 23, size = 3,
+ fill = "white")
+
+```
+
+
+
+
+
+
+## Histogram 
+```{r}
+hist(draft.df$yearDraft)
+hist(draft.df$yearDraft,breaks=10)
+
+```
+
+## histogram using ggplot
+```{r}
+ggplot(data=draft.df,aes(x=yearDraft,fill=numberRoundPick))+geom_histogram(position="identity",alpha=0.4)
+ggplot(data=draft.df,aes(x=yearDraft))+geom_histogram(binwidth=5,fill="white",colour="black")
+ggplot(data=draft.df,aes(x=yearDraft))+geom_histogram(bandwidth=4)
+ggplot(data=draft.df,aes(x=yearDraft))+geom_histogram()
+```
+
+
+
+
+## boxplot
+```{r}
+boxplot(draft.df$yearDraft)
+
+```
+
+
+
+
+
+## plotting a ling graph with points
+```{r}
+ plot(draft.df[1:80,4],type="l")
+points(draft.df[1:80,3],col="blue")
+```
+
+
+
+
+
+
+## pieChart
+```{r}
+pie(draft.df[1:30,1],lables="Draft year")
+```
+
+
+
+
+
+## ScatterPlot
+```{r}
+library(scatterplot3d)
+scatterplot3d(draft.df[1:500,2],draft.df[1:500,3],draft.df[1:500,4],main="3d scatterplot")
+
+```
+
+
+
+
+
+## scatterPlot matrices
+```{r}
+col1=draft.df[1:40,2]
+col2=draft.df[1:40,3]
+sdf=data.frame(col1,col2)
+sdf
+```
+## dotplot using ggplot
+```{r}
+ggplot(data=NULL,aes(x= draft.df[1:500,2]))+geom_dotplot()
+
+```
+## density plot
+```{r}
+ggplot(data=NULL, aes(x = draft.df[1:500,2])) +
+geom_line(stat = "density") +
+geom_line(stat = "density", adjust = .25, colour = "red") +
+geom_line(stat = "density", adjust = 2, colour = "blue")
+ggplot(data=NULL, aes(x = draft.df[1:50,2])) +
+ geom_density(fill = "blue", alpha = .2) +
+ xlim(35, 105)
+ggplot(data=NULL, aes(x = draft.df[1:50,2])) +
+ geom_density(fill = "blue", alpha = .2, colour = NA) +
+ xlim(35, 105) +
+ geom_line(stat = "density")
+```
+## multiple instance of same plot
+```{r}
+
+     ggplot(data=NULL,aes(x=draft.df[1:500,2]))+geom_histogram(fill="white",colour="black")+facet_grid(draft.df[1:500,3])
+```
+
+```{r}
+    ggplot(data=NULL,aes(x=draft.df[1:500,3]))+geom_histogram(fill="white",colour="black")+facet_grid(draft.df[1:500,3],scales="free")
+```
+## curve
+```{r}
+curve(x^3-5*x,from = -4, to = 4)
+myfun <- function(xvar) {
+ 1 / (1 + exp(-xvar + 10))
+}
+curve(myfun(x), from = 0, to = 20)
+```
+## frequency polygon
+```{r}
+ggplot(draft.df, aes(x=yearDraft)) +
+ geom_freqpoly()
+ggplot(draft.df, aes(x=yearDraft)) +
+ geom_freqpoly(binwidth = 4)
+```
+
+## vioplot
+```{r}
+library(vioplot)
+vioplot(sdf)
+
+```
+
+```{r}
+ggplot(data=NULL, aes(x = draft.df[1:500,2], y = draft.df[1:500,3]))+geom_violin()
+
+```
+
+```{r}
+ggplot(data=NULL, aes(x = draft.df[1:500,2], y = draft.df[1:500,3]))+geom_violin(trim=FALSE)
+
+
+```
+
+```{r}
+ggplot(data=NULL, aes(x = draft.df[1:500,2], y = draft.df[1:500,3]))+geom_violin(adjust=2)
+
+```
+
+```{r}
+ggplot(data=NULL, aes(x = draft.df[1:500,2], y = draft.df[1:500,3]))+geom_violin(adjust=.5)
+
+```
