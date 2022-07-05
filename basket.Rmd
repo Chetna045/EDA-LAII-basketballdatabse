@@ -1,0 +1,455 @@
+---
+date: '2022-06-23'
+output: pdf_document
+---
+
+# **EDA LAII**
+# _____________________________
+## By                          
+## Chetna Pathak(1NT19IS045)   
+## Abhiruchi Verma(1NT19IS002) 
+# _____________________________
+\vspace{12pt}
+
+### Basketball Database
+### https://www.kaggle.com/wyattowalsh/basketball
+
+### github link
+### https://github.com/Chetna045/EDA-LAII-basketballdatabse
+
+\vspace{12pt}
+# Commands
+
+# ______________________________________________________________________________
+
+## checking for installed packages
+```{r}
+installed.packages("dplyr")
+```
+## installing necessary packages
+
+```{r}
+#install.packages("DBI")
+#install.packages("dplyr")
+```
+## loading packages
+
+```{r}
+library(DBI)
+library(dplyr)
+```
+## getting help using command
+```{r}
+help("DBI-package")
+```
+## Making connection with sqlite database
+
+```{r}
+setwd("C:/Users/Hp/Downloads/archive")
+con <- dbConnect(RSQLite::SQLite(), "basketball.sqlite")
+```
+
+## Displaying all tables of database Basketball
+
+```{r}
+dbListTables(con)
+```
+
+## basic commands of R(searching ,loading and detaching a package)
+```{r}
+search()
+#install.packages("blob")
+library(blob)
+search()
+detach("package:blob")
+```
+##listing files and directories in working directory
+```{r}
+dir()
+# hidden files  too
+dir(all.files = TRUE)
+
+```
+##listing data variables
+```{r}
+ls()
+ls(pattern="ga")
+# all data variables starting with g
+ls(pattern="^g")
+# all data variables ending with s
+ls(pattern = "s$")
+# all data variables having a letter  in between a and e
+ls(pattern = "a.e")
+
+```
+## making reference to tables in database
+
+```{r}
+game<-tbl(con,"Game")
+draft<-tbl(con,"Draft")
+draft_combine<-tbl(con,"Draft_Combine")
+game_inactive_players<-tbl(con,"Game_Inactive_Players")
+game_officials<-tbl(con,"Game_Officials")
+news<-tbl(con,"News")
+news_missing<-tbl(con,"News_Missing")
+player<-tbl(con,"Player")
+player_attributes<-tbl(con,"Player_Attributes")
+player_bios<-tbl(con,"Player_Bios")
+player_photos<-tbl(con,"Player_Photos")
+player_salary<-tbl(con,"Player_Salary")
+team<-tbl(con,"Team")
+team_attributes<-tbl(con,"Team_Attributes")
+team_history<-tbl(con,"Team_History")
+team_salary<-tbl(con,"Team_Salary")
+
+
+
+```
+## displaying table team
+```{r}
+team
+```
+## viewing team column of database basketball
+
+```{r}
+View(team)
+```
+##  team table  dimension
+```{r}
+dim(team)
+
+```
+## team column starting data
+```{r}
+head(team)
+```
+## team  column summary
+```{r}
+summary(team)
+```
+## team column structure 
+```{r}
+str(team)
+```
+## team coloumn column names
+```{r}
+names(team)
+colnames(team)
+```
+## team table row names
+```{r}
+row.names(team)
+```
+## team column city
+```{r}
+team$city
+```
+## type of team
+```{r}
+typeof(team)
+```
+```{r}
+tt<- team %>% select("id","full_name") 
+tt
+```
+## converting team table into a dataframe
+```{r}
+team.data.frame<-dbGetQuery(con,"SELECT * From Team")
+team.data.frame
+team.data.frame[1][0]
+summary(team.data.frame)
+```
+## commands on dataframe
+```{r}
+team.data.frame[1]
+team.data.frame[["city"]]
+team.data.frame$year_founded
+# adding new row
+new_row_df<-rbind(team.data.frame,c(1610612767,"Chicago Super Kings","CHI","Kings","Chicago" ,"Illinois",2022))
+new_row_df
+nrow(new_row_df)
+#removing rows
+newr.team<-new_row_df[-c(31),]
+newr.team
+# adding a column
+vec<-rep(c(6,4),15)
+new_col_df<-cbind(team.data.frame,Match_hosted=(vec))
+new_col_df
+ncol(new_col_df)
+
+#removing columns
+newc.team<-new_col_df[,-c(8)]
+newc.team
+#length of data frame 
+length(team.data.frame)
+
+```
+## mutate dataframe  (using pipline operator)
+```{r}
+library(dplyr)
+mutated.team<-team.data.frame %>% mutate (new_col=vec<-rep(c(3,9),15))
+team.data.frame
+```
+## deleting column from dataframe (using pipline operator)
+```{r}
+mutated.team %>% select(-new_col)
+```
+## renaming column from dataframe (using pipline operator)
+```{r}
+mutated.team %>% rename(identity_no.=id)
+```
+## reordering column from dataframe (using pipline operator)
+```{r}
+mutated.team %>% select(abbreviation,everything())
+```
+## renaming column from dataframe (using pipline operator)
+```{r}
+mutated.team %>% rename(identity_no.=id)
+```
+## getting subset of data(using pipline operator)
+```{r}
+table(mutated.team$full_name)
+mutated.team %>% filter(state=="California")
+mutated.team %>%filter(state=="New York") %>% select(id,full_name,state,year_founded)
+```
+
+## saving team details to an csv file and reading it
+
+```{r}
+write.csv(team.data.frame,file="team.csv")
+read.csv("C:/Users/Hp/Downloads/archive/team.csv")
+```
+
+## converting dataframe as list
+```{r}
+team.list=as.list(team.data.frame);
+team.list
+```
+## basic commands on list
+```{r}
+team.list$state
+# naming each element of list
+names(team.list)<-c("identity_no.", "Fname","abbr","petname","city","state","founding_year")
+team.list
+# accessing elements of list
+team.list[1]
+team.list[5]
+# adding new element to list
+team.list[8]<-"New_Element"
+team.list
+# deleting element from list
+team.list[8]<-NULL
+team.list
+```
+## converting list to vectors
+```{r}
+v1<-unlist(team.list$id);
+v1
+```
+## sort and rank
+```{r}
+sort(v1)
+rank(v1)
+
+```
+## converting dataframe as Matrix
+```{r}
+team.mat=as.matrix(team.data.frame);
+team.mat
+```
+
+## converting "state" column of "mutated.team" dataframe to factor
+```{r}
+
+mutated.team$state=as.factor(mutated.team$state)
+str(mutated.team$state)
+```
+## grouping by state and mutating by adding new coloumn "new"(since state has common values)
+```{r}
+mutated.team %>% group_by(state)%>%mutate(new<-mean(new_col))
+
+```
+## grouping by state and summarising
+```{r}
+mutated.team %>% group_by(state)%>%summarise(avg=mean(new_col))
+
+```
+## converting Player table into a dataframe
+```{r}
+draft.df<-dbGetQuery(con,"SELECT * From draft")
+draft.df[1:40,]
+draft.df[1][0]
+summary(draft.df)
+str(draft.df)
+```
+## mean,median,standard deviation &mode of data based of on no. of times picked
+```{r}
+mean(draft.df$ numberRoundPick, na.rm = TRUE)
+median(draft.df$numberRoundPick, na.rm = TRUE)
+mode(draft.df$numberRoundPick)
+sd(draft.df$numberRoundPick)
+fivenum(draft.df$numberRoundPick)
+log(draft.df$numberRoundPick)
+#20%quantile
+quantile(draft.df$numberRoundPick,0.2)
+max(draft.df$numberRoundPick)
+min(draft.df$numberRoundPick)
+cumsum(draft.df$numberRoundPick)
+cummax(draft.df$numberRoundPick)
+cummin(draft.df$numberRoundPick)
+cumprod(draft.df$numberRoundPick)
+seq(along=draft.df$numberRoundPick)
+seq(1,14,16)
+draft.ls=as.list(draft.df)
+lapply(draft.ls,mean)
+
+
+```
+
+## barplot 
+```{r}
+draft.mat=as.matrix(draft.df)
+barplot(draft.mat[,1:4])
+
+```
+
+
+
+
+
+
+
+## plots
+```{r}
+plot(draft.df[1:80,4],type = "l")
+plot(draft.df[1:80,2],type = "l")
+plot(draft.df[1:80,3],type = "l")
+plot(draft.df[1:80,1],type = "l")
+plot(draft.df[1:80,4],type = "l")
+lines(draft.df[1:80,3],col="red",type = "l")
+lines(draft.df[1:80,2],col="blue",type = "l")
+```
+
+
+
+
+
+
+## plotting a bargraph using ggplot
+```{r}
+library(ggplot2)
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick))+geom_col()
+```
+
+
+
+
+## using ggplot plotting a bar graph with fill 
+```{r}
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick,fill=numberPickOverall))+geom_col()
+```
+
+
+
+
+
+## using ggplot plotting a line graph
+```{r}
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick))+geom_line()
+```
+
+
+
+
+
+
+## using ggplot plotting a point graph
+```{r}
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick))+geom_point()
+```
+
+
+
+
+
+## using ggplot plotting a boxplot
+```{r}
+ggplot(draft.df,aes(x=numberRound,y=numberRoundPick))+geom_boxplot()
+
+```
+
+
+
+
+
+
+## Histogram 
+```{r}
+hist(draft.df$yearDraft)
+
+```
+
+
+
+
+
+## boxplot
+```{r}
+boxplot(draft.df$yearDraft)
+
+```
+
+
+
+
+
+## plotting a ling graph with points
+```{r}
+ plot(draft.df[1:80,4],type="l")
+points(draft.df[1:80,3],col="blue")
+```
+
+
+
+
+
+
+## pieChart
+```{r}
+pie(draft.df[1:30,1],lables="Draft year")
+```
+
+
+
+
+
+## ScatterPlot
+```{r}
+library(scatterplot3d)
+scatterplot3d(draft.df[1:500,2],draft.df[1:500,3],draft.df[1:500,4],main="3d scatterplot")
+
+```
+
+
+
+
+
+##scatterPlot matrices
+```{r}
+col1=draft.df[1:40,2]
+col2=draft.df[1:40,3]
+sdf=data.frame(col1,col2)
+sdf
+```
+
+
+
+
+
+## vioplot
+```{r}
+library(vioplot)
+vioplot(sdf)
+
+```
+
